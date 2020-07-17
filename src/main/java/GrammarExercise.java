@@ -1,18 +1,43 @@
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class GrammarExercise {
+
+    private static final Pattern REGEX_PATTERN_OF_INVALID_INPUT = Pattern.compile("[^A-Za-z,]|,{2}");
+
     public static void main(String[] args) {
-        //需要从命令行读入
-        String firstWordList = "";
-        String secondWordList = "";
+
+        String firstWordList = args[0];
+        String secondWordList = args[1];
 
         List<String> result = findCommonWordsWithSpace(firstWordList,secondWordList);
-        //按要求输出到命令行
 
+        result.forEach(System.out::println);
     }
 
     public static List<String> findCommonWordsWithSpace(String firstWordList, String secondWordList) {
-        //在这编写实现代码
-        return null;
+
+        // Throw an exception if the two strings contain any invalid character
+        if (REGEX_PATTERN_OF_INVALID_INPUT.matcher(firstWordList).find()
+                || REGEX_PATTERN_OF_INVALID_INPUT.matcher(secondWordList).find()) {
+            throw new RuntimeException("input not valid");
+        }
+
+        // Split string into array by comma
+        List<String> arrayOfFirstWordList = Arrays.asList(firstWordList.toUpperCase().split(","));
+        List<String> arrayOfSecondWordList = Arrays.asList(secondWordList.toUpperCase().split(","));
+
+        return arrayOfFirstWordList.stream()
+                // Discard repeated elements
+                .distinct()
+                // Filter those elements in first word list but not exists in the second one
+                .filter(arrayOfSecondWordList::contains)
+                .sorted()
+                // Add a space between every two characters, and remove the space at the head or tail
+                .map(s -> s.replace("", " ").trim())
+                // Covert Stream to List
+                .collect(Collectors.toList());
     }
 }
